@@ -2,21 +2,22 @@
 
 var model = {
   watchlistItems: [],
-  browseItems: []
+  browseItems: [],
 
   // TODO 
   // add a property for the current active movie index
+  activeMovieIndex: 0
 }
 
 
 var api = {
   root: "https://api.themoviedb.org/3",
-  token: "8e888fa39ec243e662e1fb738c42ae99", // TODO 0 add your api key
+  token: "3e548f6a96650f3f0e625cc37469178f", // TODO 0 add your api key
   /**
    * Given a movie object, returns the url to its poster image
    */
   posterUrl: function(movie) {
-    var baseImageUrl = "http://image.tmdb.org/t/p/w300/";
+    var baseImageUrl = "https://image.tmdb.org/t/p/w300/";
     return baseImageUrl + movie.poster_path; 
   }
 }
@@ -83,7 +84,9 @@ function render() {
 
   // clear everything
   $("#section-watchlist ul").empty();
-  $("#section-browse ul").empty();
+  $("#browse-info").empty();
+  $("#browse-carousel ul").empty();
+  
 
   // render watchlist items
   model.watchlistItems.forEach(function(movie) {
@@ -121,7 +124,34 @@ function render() {
 
     $("#section-watchlist ul").append(itemView);
   });
+  
+  // render browse items
+  
+  var activeMovie = model.activeMovieIndex;
+  var title = $("<h4></h4>").text(model.browseItems[activeMovie].original_title);
+  var desc = $("<p></p>").text(model.browseItems[activeMovie].overview);
+  $("#browse-info").append([title, "<hr/>", desc]);
+  $("#add-to-watchlist").off("click");
+  $("#add-to-watchlist").click(function() {
+    model.watchlistItems.push(model.browseItems[activeMovie]);
+    render();
+   })
+   .prop("disabled", model.watchlistItems.indexOf(model.browseItems[activeMovie]) !== -1);
+   
+  // fill carousel with posters
+  var posters = model.browseItems.map(function(movie) {
+   // TODO 
+   // return a list item with an img inside 
+   var img = $("<img></img>")
+      .attr("src", api.posterUrl(movie))
+      .attr("class", "img-responsive");
+   return $("<li></li>").append(img).addClass("item");
+  });
+  $(".carousel-inner").append(posters);
+  posters[model.activeMovieIndex].addClass("active");
+  
 
+/*
   // render browse items
   model.browseItems.forEach(function(movie) {
     var title = $("<h4></h4>").text(movie.original_title);
@@ -144,6 +174,7 @@ function render() {
     // append the itemView to the list
     $("#section-browse ul").append(itemView);
   });
+  */
 }
 
 
